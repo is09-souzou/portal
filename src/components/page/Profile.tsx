@@ -14,7 +14,7 @@ import GraphQLProgress from "../GraphQLProgress";
 import NotFound from "../NotFound";
 import gql from "graphql-tag";
 
-type Item = "displayName" | "email" | "career" | "message";
+type Item = "displayName" | "email" | "career" | "message" | "avatarUri";
 
 interface State {
     whileEditingItem: Item[];
