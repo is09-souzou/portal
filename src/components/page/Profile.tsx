@@ -11,7 +11,8 @@ import {
     DialogTitle,
     TextField,
     DialogContent,
-    DialogActions
+    DialogActions,
+    LinearProgress
 } from "@material-ui/core";
 import { PageComponentProps } from "../../App";
 import GraphQLProgress from "../GraphQLProgress";
@@ -27,6 +28,7 @@ interface State {
     whileEditingItem: Item[];
     userEditing: boolean;
     editableAvatarDialogIsVisible: boolean;
+    uploadingAvatarImage: boolean;
 }
 
 const QueryGetUser = gql(`
@@ -65,8 +67,13 @@ export default class extends React.Component<PageComponentProps<{}>, State> {
         this.setState({
             whileEditingItem: [],
             userEditing: false,
-            editableAvatarDialogIsVisible: false
+            editableAvatarDialogIsVisible: false,
+            uploadingAvatarImage: false
         });
+    }
+
+    componentDidMount() {
+        this.props.fabApi.visible && this.props.fabApi.toHide();
     }
 
     addWhileEditingItem = (item: Item) => (
@@ -272,16 +279,47 @@ export default class extends React.Component<PageComponentProps<{}>, State> {
                                                 e.preventDefault();
                                                 const image = (e.target as any).elements["avatarImage"].files[0];
 
-                                                const {
-                                                    signedUrl,
-                                                    uploadedUrl
-                                                } = await createSignedUrl({
-                                                    jwt: auth.token!.jwtToken,
-                                                    userId: auth.token!.payload.sub,
-                                                    type: "profile",
-                                                    mimetype: image.type
-                                                });
+                                                try {
+                                                    this.setState({ uploadingAvatarImage: true });
+                                                    const {
+                                                        signedUrl,
+                                                        uploadedUrl
+                                                    } = await createSignedUrl({
+                                                        jwt: auth.token!.jwtToken,
+                                                        userId: auth.token!.payload.sub,
+                                                        type: "profile",
+                                                        mimetype: image.type
+                                                    });
 
+                                                    await Promise.all([
+                                                        fileUploadToS3({
+                                                            url: signedUrl,
+                                                            file: image
+                                                        }),
+                                                        updateUser({
+                                                            variables: {
+                                                                user: {
+                                                                    avatarUri: uploadedUrl,
+                                                                    id: this.props.auth.token!.payload.sub,
+                                                                }
+                                                            },
+                                                            optimisticResponse: {
+                                                                __typename: "Mutation",
+                                                                updateUser: {
+                                                                    id: this.props.auth.token!.payload.sub,
+                                                                    __typename: "User"
+                                                                }
+                                                            },
+                                                        })
+                                                    ]);
+
+                                                    this.setState({ uploadingAvatarImage: false });
+
+                                                    this.closeEditableAvatarDialog();
+                                                } catch (e) {
+                                                    this.setState({ uploadingAvatarImage: false });
+                                                    notificationListener.errorNotification(e);
+                                                }
                                             }}
                                         >
                                             <DialogTitle id="editable-avatar-dialog-title">Upload Avatar</DialogTitle>
@@ -292,6 +330,7 @@ export default class extends React.Component<PageComponentProps<{}>, State> {
                                                     height="256"
                                                 />
                                             </DialogContent>
+                                            {this.state.uploadingAvatarImage && <LinearProgress/>}
                                             <DialogActions>
                                                 <Button
                                                     onClick={this.closeEditableAvatarDialog}
@@ -300,6 +339,7 @@ export default class extends React.Component<PageComponentProps<{}>, State> {
                                                 </Button>
                                                 <Button
                                                     component="button"
+                                                    color="primary"
                                                     type="submit"
                                                 >
                                                     Submit
