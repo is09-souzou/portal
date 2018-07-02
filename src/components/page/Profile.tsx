@@ -125,7 +125,7 @@ export default class extends React.Component<PageComponentProps<{}>, State> {
                 variables={{ id: auth.token!.payload.sub }}
                 fetchPolicy="cache-and-network"
             >
-                {({ loading, error, data }) => {
+                {({ loading, error, data, refetch }) => {
                     if (loading) return <GraphQLProgress />;
                     if (error) {
                         console.error(error);
@@ -313,6 +313,7 @@ export default class extends React.Component<PageComponentProps<{}>, State> {
                                                         })
                                                     ]);
 
+                                                    refetch();
                                                     this.setState({ uploadingAvatarImage: false });
 
                                                     this.closeEditableAvatarDialog();
