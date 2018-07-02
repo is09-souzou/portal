@@ -7,18 +7,26 @@ import styled from "styled-components";
 import {
     Avatar,
     Button,
-    TextField
+    Dialog,
+    DialogTitle,
+    TextField,
+    DialogContent,
+    DialogActions
 } from "@material-ui/core";
 import { PageComponentProps } from "../../App";
 import GraphQLProgress from "../GraphQLProgress";
+import ImageInput from "../ImageInput";
 import NotFound from "../NotFound";
 import gql from "graphql-tag";
+import createSignedUrl from "../../api/createSignedUrl";
+import fileUploadToS3  from "../../api/fileUploadToS3";
 
 type Item = "displayName" | "email" | "career" | "message" | "avatarUri";
 
 interface State {
     whileEditingItem: Item[];
     userEditing: boolean;
+    editableAvatarDialogIsVisible: boolean;
 }
 
 const QueryGetUser = gql(`
@@ -56,7 +64,8 @@ export default class extends React.Component<PageComponentProps<{}>, State> {
     componentWillMount() {
         this.setState({
             whileEditingItem: [],
-            userEditing: false
+            userEditing: false,
+            editableAvatarDialogIsVisible: false
         });
     }
 
@@ -89,6 +98,10 @@ export default class extends React.Component<PageComponentProps<{}>, State> {
             this.props.notificationListener.errorNotification(err);
         }
     }
+
+    openEditableAvatarDialog = () => this.setState({ editableAvatarDialogIsVisible: true });
+
+    closeEditableAvatarDialog = () => this.setState({ editableAvatarDialogIsVisible: false });
 
     render() {
         const {
@@ -131,9 +144,8 @@ export default class extends React.Component<PageComponentProps<{}>, State> {
                                     <div>
                                         <UserAvatar
                                             src={currentUser.avatarUri}
-                                        >
-                                            HS
-                                        </UserAvatar>
+                                            onClick={this.openEditableAvatarDialog}
+                                        />
                                         <div>
                                             <TextField
                                                 label="DisplayName"
@@ -249,6 +261,52 @@ export default class extends React.Component<PageComponentProps<{}>, State> {
                                             inputRef={x => this.messageInput = x}
                                         />
                                     </div>
+                                    <Dialog
+                                        open={this.state.editableAvatarDialogIsVisible}
+                                        onClose={this.closeEditableAvatarDialog}
+                                        aria-labelledby="editable-avatar-dialog-title"
+                                    >
+                                        <form
+                                            // tslint:disable-next-line:jsx-no-lambda
+                                            onSubmit={async e => {
+                                                e.preventDefault();
+                                                const image = (e.target as any).elements["avatarImage"].files[0];
+
+                                                const {
+                                                    signedUrl,
+                                                    uploadedUrl
+                                                } = await createSignedUrl({
+                                                    jwt: auth.token!.jwtToken,
+                                                    userId: auth.token!.payload.sub,
+                                                    type: "profile",
+                                                    mimetype: image.type
+                                                });
+
+                                            }}
+                                        >
+                                            <DialogTitle id="editable-avatar-dialog-title">Upload Avatar</DialogTitle>
+                                            <DialogContent>
+                                                <ImageInput
+                                                    name="avatarImage"
+                                                    width="256"
+                                                    height="256"
+                                                />
+                                            </DialogContent>
+                                            <DialogActions>
+                                                <Button
+                                                    onClick={this.closeEditableAvatarDialog}
+                                                >
+                                                    Cancel
+                                                </Button>
+                                                <Button
+                                                    component="button"
+                                                    type="submit"
+                                                >
+                                                    Submit
+                                                </Button>
+                                            </DialogActions>
+                                        </form>
+                                    </Dialog>
                                 </Host>
                             )}
                         </Mutation>
@@ -287,6 +345,7 @@ const Host = styled.form`
 
 const UserAvatar = styled(Avatar)`
     && {
+        cursor: pointer;
         border: 1px solid #ccc;
         width: 8rem;
         height: 8rem;
