@@ -16,8 +16,10 @@ import {
 } from "@material-ui/core";
 import { PageComponentProps } from "../../App";
 import GraphQLProgress from "../GraphQLProgress";
+import Header from "../Header";
 import ImageInput from "../ImageInput";
 import NotFound from "../NotFound";
+import Page from "../Page";
 import gql from "graphql-tag";
 import createSignedUrl from "../../api/createSignedUrl";
 import fileUploadToS3  from "../../api/fileUploadToS3";
@@ -72,10 +74,6 @@ export default class extends React.Component<PageComponentProps<{}>, State> {
         });
     }
 
-    componentDidMount() {
-        this.props.fabApi.visible && this.props.fabApi.toHide();
-    }
-
     addWhileEditingItem = (item: Item) => (
         () => (
             !this.state.whileEditingItem.includes(item)
@@ -111,62 +109,132 @@ export default class extends React.Component<PageComponentProps<{}>, State> {
     closeEditableAvatarDialog = () => this.setState({ editableAvatarDialogIsVisible: false });
 
     render() {
+        console.log(this.props);
         const {
             auth,
+            history,
             notificationListener
         } = this.props;
 
-        if (!auth.token)
+        if (!auth.token) {
+            history.push("?sign-up=true");
             return "";
+        }
 
         return (
-            <Query
-                query={QueryGetUser}
-                variables={{ id: auth.token!.payload.sub }}
-                fetchPolicy="cache-and-network"
-            >
-                {({ loading, error, data, refetch }) => {
-                    if (loading) return <GraphQLProgress />;
-                    if (error) {
-                        console.error(error);
+            <Page>
+                <Header
+                    auth={auth}
+                    history={history}
+                    notificationListener={notificationListener}
+                />
+                <Query
+                    query={QueryGetUser}
+                    variables={{ id: auth.token!.payload.sub }}
+                    fetchPolicy="cache-and-network"
+                >
+                    {({ loading, error, data, refetch }) => {
+                        if (loading) return <GraphQLProgress />;
+                        if (error) {
+                            console.error(error);
+                            return (
+                                <Fragment>
+                                    <div>cry；；</div>
+                                    <notificationListener.ErrorComponent error={error}/>
+                                </Fragment>
+                            );
+                        }
+
+                        if (!data.getUser)
+                            return  <NotFound />;
+
+                        const currentUser = data.getUser;
+
                         return (
-                            <Fragment>
-                                <div>cry；；</div>
-                                <notificationListener.ErrorComponent error={error}/>
-                            </Fragment>
-                        );
-                    }
-
-                    if (!data.getUser)
-                        return  <NotFound />;
-
-                    const currentUser = data.getUser;
-
-                    return (
-                        <Mutation
-                            mutation={MutationUpdateUser}
-                        >
-                            {(updateUser) => (
-                                <Host>
-                                    <div>
-                                        <UserAvatar
-                                            src={currentUser.avatarUri}
-                                            onClick={this.openEditableAvatarDialog}
-                                        />
+                            <Mutation
+                                mutation={MutationUpdateUser}
+                            >
+                                {(updateUser) => (
+                                    <Content>
+                                        <div>
+                                            <UserAvatar
+                                                src={currentUser.avatarUri}
+                                                onClick={this.openEditableAvatarDialog}
+                                            />
+                                            <div>
+                                                <TextField
+                                                    label="DisplayName"
+                                                    margin="normal"
+                                                    InputProps={{
+                                                        endAdornment: (
+                                                            this.state.whileEditingItem.includes("displayName")
+                                                            && <Button
+                                                                // tslint:disable-next-line:jsx-no-lambda
+                                                                onClick={() =>
+                                                                    this.callUpdateUser(
+                                                                        updateUser,
+                                                                        "displayName",
+                                                                        this.displayNameInput.value
+                                                                    )
+                                                                }
+                                                            >
+                                                                Save
+                                                            </Button>
+                                                        )
+                                                    }}
+                                                    onChange={this.addWhileEditingItem("displayName")}
+                                                    defaultValue={currentUser.displayName}
+                                                    fullWidth
+                                                    required
+                                                    // tslint:disable-next-line:jsx-no-lambda
+                                                    inputRef={x => this.displayNameInput = x}
+                                                />
+                                                <TextField
+                                                    id="profile-email"
+                                                    label="Mail Address"
+                                                    margin="normal"
+                                                    InputProps={{
+                                                        endAdornment: (
+                                                            this.state.whileEditingItem.includes("email")
+                                                            && <Button
+                                                                // tslint:disable-next-line:jsx-no-lambda
+                                                                onClick={() =>
+                                                                    this.callUpdateUser(
+                                                                        updateUser,
+                                                                        "email",
+                                                                        this.emailInput.value
+                                                                    )
+                                                                }
+                                                            >
+                                                                Save
+                                                            </Button>
+                                                        )
+                                                    }}
+                                                    type="email"
+                                                    onChange={this.addWhileEditingItem("email")}
+                                                    defaultValue={currentUser.email}
+                                                    fullWidth
+                                                    required
+                                                    // tslint:disable-next-line:jsx-no-lambda
+                                                    inputRef={x => this.emailInput = x}
+                                                />
+                                            </div>
+                                        </div>
                                         <div>
                                             <TextField
-                                                label="DisplayName"
+                                                id="profile-career"
+                                                label="Career"
                                                 margin="normal"
                                                 InputProps={{
                                                     endAdornment: (
-                                                        this.state.whileEditingItem.includes("displayName")
+                                                        this.state.whileEditingItem.includes("career")
                                                         && <Button
                                                             // tslint:disable-next-line:jsx-no-lambda
                                                             onClick={() =>
                                                                 this.callUpdateUser(
                                                                     updateUser,
-                                                                    "displayName",
-                                                                    this.displayNameInput.value
+                                                                    "career",
+                                                                    this.careerInput.value
                                                                 )
                                                             }
                                                         >
@@ -174,27 +242,27 @@ export default class extends React.Component<PageComponentProps<{}>, State> {
                                                         </Button>
                                                     )
                                                 }}
-                                                onChange={this.addWhileEditingItem("displayName")}
-                                                defaultValue={currentUser.displayName}
-                                                fullWidth
-                                                required
+                                                onChange={this.addWhileEditingItem("career")}
+                                                defaultValue={currentUser.career}
+                                                multiline
+                                                rows={4}
                                                 // tslint:disable-next-line:jsx-no-lambda
-                                                inputRef={x => this.displayNameInput = x}
+                                                inputRef={x => this.careerInput = x}
                                             />
                                             <TextField
-                                                id="profile-email"
-                                                label="Mail Address"
+                                                id="profile-message"
+                                                label="Message"
                                                 margin="normal"
                                                 InputProps={{
                                                     endAdornment: (
-                                                        this.state.whileEditingItem.includes("email")
+                                                        this.state.whileEditingItem.includes("message")
                                                         && <Button
                                                             // tslint:disable-next-line:jsx-no-lambda
                                                             onClick={() =>
                                                                 this.callUpdateUser(
                                                                     updateUser,
-                                                                    "email",
-                                                                    this.emailInput.value
+                                                                    "message",
+                                                                    this.messageInput.value
                                                                 )
                                                             }
                                                         >
@@ -202,163 +270,108 @@ export default class extends React.Component<PageComponentProps<{}>, State> {
                                                         </Button>
                                                     )
                                                 }}
-                                                type="email"
-                                                onChange={this.addWhileEditingItem("email")}
-                                                defaultValue={currentUser.email}
-                                                fullWidth
-                                                required
+                                                onChange={this.addWhileEditingItem("message")}
+                                                defaultValue={currentUser.message}
                                                 // tslint:disable-next-line:jsx-no-lambda
-                                                inputRef={x => this.emailInput = x}
+                                                inputRef={x => this.messageInput = x}
                                             />
                                         </div>
-                                    </div>
-                                    <div>
-                                        <TextField
-                                            id="profile-career"
-                                            label="Career"
-                                            margin="normal"
-                                            InputProps={{
-                                                endAdornment: (
-                                                    this.state.whileEditingItem.includes("career")
-                                                    && <Button
-                                                        // tslint:disable-next-line:jsx-no-lambda
-                                                        onClick={() =>
-                                                            this.callUpdateUser(
-                                                                updateUser,
-                                                                "career",
-                                                                this.careerInput.value
-                                                            )
-                                                        }
-                                                    >
-                                                        Save
-                                                    </Button>
-                                                )
-                                            }}
-                                            onChange={this.addWhileEditingItem("career")}
-                                            defaultValue={currentUser.career}
-                                            multiline
-                                            rows={4}
-                                            // tslint:disable-next-line:jsx-no-lambda
-                                            inputRef={x => this.careerInput = x}
-                                        />
-                                        <TextField
-                                            id="profile-message"
-                                            label="Message"
-                                            margin="normal"
-                                            InputProps={{
-                                                endAdornment: (
-                                                    this.state.whileEditingItem.includes("message")
-                                                    && <Button
-                                                        // tslint:disable-next-line:jsx-no-lambda
-                                                        onClick={() =>
-                                                            this.callUpdateUser(
-                                                                updateUser,
-                                                                "message",
-                                                                this.messageInput.value
-                                                            )
-                                                        }
-                                                    >
-                                                        Save
-                                                    </Button>
-                                                )
-                                            }}
-                                            onChange={this.addWhileEditingItem("message")}
-                                            defaultValue={currentUser.message}
-                                            // tslint:disable-next-line:jsx-no-lambda
-                                            inputRef={x => this.messageInput = x}
-                                        />
-                                    </div>
-                                    <Dialog
-                                        open={this.state.editableAvatarDialogIsVisible}
-                                        onClose={this.closeEditableAvatarDialog}
-                                        aria-labelledby="editable-avatar-dialog-title"
-                                    >
-                                        <form
-                                            // tslint:disable-next-line:jsx-no-lambda
-                                            onSubmit={async e => {
-                                                e.preventDefault();
-                                                const image = (e.target as any).elements["avatarImage"].files[0];
-
-                                                try {
-                                                    this.setState({ uploadingAvatarImage: true });
-                                                    const {
-                                                        signedUrl,
-                                                        uploadedUrl
-                                                    } = await createSignedUrl({
-                                                        jwt: auth.token!.jwtToken,
-                                                        userId: auth.token!.payload.sub,
-                                                        type: "profile",
-                                                        mimetype: image.type
-                                                    });
-
-                                                    await Promise.all([
-                                                        fileUploadToS3({
-                                                            url: signedUrl,
-                                                            file: image
-                                                        }),
-                                                        updateUser({
-                                                            variables: {
-                                                                user: {
-                                                                    avatarUri: uploadedUrl,
-                                                                    id: this.props.auth.token!.payload.sub,
-                                                                }
-                                                            },
-                                                            optimisticResponse: {
-                                                                __typename: "Mutation",
-                                                                updateUser: {
-                                                                    id: this.props.auth.token!.payload.sub,
-                                                                    __typename: "User"
-                                                                }
-                                                            },
-                                                        })
-                                                    ]);
-
-                                                    refetch();
-                                                    this.setState({ uploadingAvatarImage: false });
-
-                                                    this.closeEditableAvatarDialog();
-                                                } catch (e) {
-                                                    this.setState({ uploadingAvatarImage: false });
-                                                    notificationListener.errorNotification(e);
-                                                }
-                                            }}
+                                        <Dialog
+                                            open={this.state.editableAvatarDialogIsVisible}
+                                            onClose={this.closeEditableAvatarDialog}
+                                            aria-labelledby="editable-avatar-dialog-title"
                                         >
-                                            <DialogTitle id="editable-avatar-dialog-title">Upload Avatar</DialogTitle>
-                                            <DialogContent>
-                                                <ImageInput
-                                                    name="avatarImage"
-                                                    width="256"
-                                                    height="256"
-                                                />
-                                            </DialogContent>
-                                            {this.state.uploadingAvatarImage && <LinearProgress/>}
-                                            <DialogActions>
-                                                <Button
-                                                    onClick={this.closeEditableAvatarDialog}
+                                            <form
+                                                // tslint:disable-next-line:jsx-no-lambda
+                                                onSubmit={async e => {
+                                                    e.preventDefault();
+                                                    const image = (e.target as any).elements["avatarImage"].files[0];
+
+                                                    try {
+                                                        this.setState({ uploadingAvatarImage: true });
+                                                        const {
+                                                            signedUrl,
+                                                            uploadedUrl
+                                                        } = await createSignedUrl({
+                                                            jwt: auth.token!.jwtToken,
+                                                            userId: auth.token!.payload.sub,
+                                                            type: "profile",
+                                                            mimetype: image.type
+                                                        });
+
+                                                        await Promise.all([
+                                                            fileUploadToS3({
+                                                                url: signedUrl,
+                                                                file: image
+                                                            }),
+                                                            updateUser({
+                                                                variables: {
+                                                                    user: {
+                                                                        avatarUri: uploadedUrl,
+                                                                        id: this.props.auth.token!.payload.sub,
+                                                                    }
+                                                                },
+                                                                optimisticResponse: {
+                                                                    __typename: "Mutation",
+                                                                    updateUser: {
+                                                                        id: this.props.auth.token!.payload.sub,
+                                                                        __typename: "User"
+                                                                    }
+                                                                },
+                                                            })
+                                                        ]);
+
+                                                        refetch();
+                                                        this.setState({ uploadingAvatarImage: false });
+
+                                                        this.closeEditableAvatarDialog();
+                                                    } catch (e) {
+                                                        this.setState({ uploadingAvatarImage: false });
+                                                        notificationListener.errorNotification(e);
+                                                    }
+                                                }}
+                                            >
+                                                <DialogTitle
+                                                    id="editable-avatar-dialog-title"
                                                 >
-                                                    Cancel
-                                                </Button>
-                                                <Button
-                                                    component="button"
-                                                    color="primary"
-                                                    type="submit"
-                                                >
-                                                    Submit
-                                                </Button>
-                                            </DialogActions>
-                                        </form>
-                                    </Dialog>
-                                </Host>
-                            )}
-                        </Mutation>
-                    );
-                }}
-            </Query>
+                                                    Upload Avatar
+                                                </DialogTitle>
+                                                <DialogContent>
+                                                    <ImageInput
+                                                        name="avatarImage"
+                                                        width="256"
+                                                        height="256"
+                                                    />
+                                                </DialogContent>
+                                                {this.state.uploadingAvatarImage && <LinearProgress/>}
+                                                <DialogActions>
+                                                    <Button
+                                                        onClick={this.closeEditableAvatarDialog}
+                                                    >
+                                                        Cancel
+                                                    </Button>
+                                                    <Button
+                                                        component="button"
+                                                        color="primary"
+                                                        type="submit"
+                                                    >
+                                                        Submit
+                                                    </Button>
+                                                </DialogActions>
+                                            </form>
+                                        </Dialog>
+                                    </Content>
+                                )}
+                            </Mutation>
+                        );
+                    }}
+                </Query>
+            </Page>
         );
     }
 }
 
-const Host = styled.form`
+const Content = styled.form`
     max-width: 40rem;
     margin: 0 auto;
     display: flex;

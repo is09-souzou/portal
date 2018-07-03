@@ -1,14 +1,8 @@
 import React from "react";
 import styled from "styled-components";
-import {
-    Drawer,
-    Button
-} from "@material-ui/core";
-import Header    from "./../Header";
+import { Drawer } from "@material-ui/core";
 import Navigator from "./../Navigator";
 import { RouteComponentProps } from "react-router-dom";
-import { AuthProps } from "./../wrapper/Auth";
-import { NotificationListenerProps } from "./../wrapper/NotificationListener";
 
 interface State {
     drawerOpend: boolean;
@@ -17,22 +11,20 @@ interface State {
     fabIcon: React.ReactNode;
 }
 
-interface Props extends RouteComponentProps<{}>, AuthProps, NotificationListenerProps {
+interface Props extends RouteComponentProps<{}> {
     render: (mainLayoutEventProps: MainLayoutEventProps) => React.ReactNode;
 }
 
-interface FabApi {
-    visible: boolean;
-    toHide: () => void;
-    toView: () => void;
-    toggleVisibility: () => void;
-    setIcon: (n: React.ReactNode) => void;
-    subscribeClick: (fn: (e: any) => void) => () => void;
+export interface MainLayoutEventProps {
 }
 
-export interface MainLayoutEventProps {
-    fabApi: FabApi;
+interface DrawerContextModel {
+    toggleDrawer: () => void;
 }
+
+export const DrawerContext = React.createContext<DrawerContextModel>({
+    toggleDrawer: () => undefined
+});
 
 export default class extends React.Component<Props, State> {
 
@@ -44,20 +36,11 @@ export default class extends React.Component<Props, State> {
         });
     }
 
-    onFabClick = (e: any) => {
-        for (const x of this.state.fabClickSubscribers)
-            x.fn(e);
-    }
-
-    toggleDrawer = () => {
-        this.setState({ drawerOpend: !this.state.drawerOpend });
-    }
+    toggleDrawer = () => this.setState({ drawerOpend: !this.state.drawerOpend });
 
     render() {
 
         const {
-            auth,
-            notificationListener,
             history,
             render
         } = this.props;
@@ -88,47 +71,15 @@ export default class extends React.Component<Props, State> {
                     </Drawer>
                 </div>
                 <Content>
-                    <Header
-                        onMenuButtonClick={this.toggleDrawer}
-                        auth={auth}
-                        history={history}
-                        notificationListener={notificationListener}
-                    />
-                    <Main>
-                        {render({
-                            fabApi: {
-                                visible: this.state.fabIsVisible,
-                                toHide: () => this.setState({ fabIsVisible: false }),
-                                toView: () => this.setState({ fabIsVisible: true }),
-                                toggleVisibility: () => this.setState({ fabIsVisible: !this.state.fabIsVisible }),
-                                setIcon: (n: React.ReactNode) => this.setState({ fabIcon: n }),
-                                subscribeClick: (fn: (e: any) => void) => {
-                                    const key = Math.random();
-
-                                    this.setState({
-                                        fabClickSubscribers: this.state.fabClickSubscribers.concat({
-                                            key,
-                                            fn
-                                        })
-                                    });
-                                    return () => this.setState({
-                                        fabClickSubscribers: this.state.fabClickSubscribers.filter(x =>
-                                            x.key !== key
-                                        )
-                                    });
-                                }
-                            },
-                        })}
-                    </Main>
-                    <Fab
-                        style={!this.state.fabIsVisible ? { display: "none" } : {}}
-                        variant="fab"
-                        color="primary"
-                        aria-label="add"
-                        onClick={this.onFabClick}
+                    <DrawerContext.Provider
+                        value={{
+                            toggleDrawer: this.toggleDrawer
+                        }}
                     >
-                        {this.state.fabIcon || ""}
-                    </Fab>
+                        <Main>
+                            {render({})}
+                        </Main>
+                    </DrawerContext.Provider>
                 </Content>
             </Host>
         );
@@ -161,18 +112,6 @@ const Content = styled.div`
     @media (max-width: 767px) {
         width: 100%;
         margin-left: 0rem;
-    }
-    > :nth-child(2) {
-        margin-top: 7rem;
-    }
-`;
-
-const Fab = styled(Button)`
-    && {
-        position: fixed;
-        right: 0;
-        bottom: 0;
-        margin: 2rem;
     }
 `;
 

@@ -19,6 +19,7 @@ import {
 } from "@material-ui/core";
 
 import { AuthProps } from "./wrapper/Auth";
+import { DrawerContext } from "./wrapper/MainLayout";
 import SignInDialog from "./SignInDialog";
 import SignUpDialog from "./SignUpDialog";
 import Link         from "./Link";
@@ -31,7 +32,6 @@ import { Redirect } from "react-router";
 interface Props extends AuthProps {
     history: H.History;
     notificationListener: NotificationListener;
-    onMenuButtonClick: (event: React.MouseEvent<HTMLElement>) => void;
 }
 
 interface State {
@@ -87,8 +87,7 @@ export default class extends React.Component<Props, State> {
         const {
             auth,
             history,
-            notificationListener,
-            onMenuButtonClick
+            notificationListener
         } = this.props;
 
         const queryParam = toObjectFromURIQuery(history.location.search);
@@ -98,13 +97,17 @@ export default class extends React.Component<Props, State> {
         return (
             <StyledAppBar position="fixed">
                 <StyledToolbar>
-                    <MenuIconButton
-                        color="inherit"
-                        aria-label="open drawer"
-                        onClick={onMenuButtonClick}
-                    >
-                        <MenuIcon />
-                    </MenuIconButton>
+                    <DrawerContext.Consumer>
+                        {({ toggleDrawer }) =>
+                            <MenuIconButton
+                                color="inherit"
+                                aria-label="open drawer"
+                                onClick={toggleDrawer}
+                            >
+                                <MenuIcon />
+                            </MenuIconButton>
+                        }
+                    </DrawerContext.Consumer>
                     <Typography variant="title" color="inherit">
                         Work List
                     </Typography>
