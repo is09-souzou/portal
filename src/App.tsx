@@ -1,26 +1,23 @@
 import React from "react";
+import { createMuiTheme }   from "@material-ui/core/styles";
+import { MuiThemeProvider } from "@material-ui/core";
 import {
     BrowserRouter,
     withRouter,
     RouteComponentProps,
     match
 } from "react-router-dom";
-import { createMuiTheme }   from "@material-ui/core/styles";
-import { MuiThemeProvider } from "@material-ui/core";
 import Auth, { AuthProps }                                  from "./components/wrapper/Auth";
 import AppSyncClient                                        from "./components/wrapper/AppSyncClient";
-import NotificationListener, { NotificationListenerProps }  from "./components/wrapper/NotificationListener";
 import MainLayout, { MainLayoutEventProps }                 from "./components/wrapper/MainLayout";
-
-import WorkPage       from "./components/page/WorkPage";
-import CreateWorkPage from "./components/page/CreateWorkPage";
-import ProfilePage    from "./components/page/Profile";
-
-import ComposingRoute  from "./components/ComposingRoute";
-import ComposingSwitch from "./components/ComposingSwitch";
-// TODO Test Component
-import UserListPage   from "./components/page/UserListPage";
-import UserPage       from "./components/page/UserPage";
+import NotificationListener, { NotificationListenerProps }  from "./components/wrapper/NotificationListener";
+import CreateWorkPage                                       from "./components/page/CreateWorkPage";
+import WorkPage                                             from "./components/page/WorkPage";
+import ProfilePage                                          from "./components/page/Profile";
+import UserListPage                                         from "./components/page/UserListPage";
+import UserPage                                             from "./components/page/UserPage";
+import ComposingRoute                                       from "./components/ComposingRoute";
+import ComposingSwitch                                      from "./components/ComposingSwitch";
 
 // tslint:disable-next-line:max-line-length
 const Root = withRouter<RouteComponentProps<any> & { children: React.ReactElement<PageComponentProps<any>> }>((props: RouteComponentProps<any> & { children: React.ReactElement<PageComponentProps<any>> }) => (

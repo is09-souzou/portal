@@ -1,5 +1,4 @@
 import React from "react";
-import styled from "styled-components";
 import {
     Button,
     Card,
@@ -9,10 +8,11 @@ import {
     Typography
 } from "@material-ui/core";
 import { Add as AddIcon } from "@material-ui/icons";
+import styled             from "styled-components";
 import { PageComponentProps } from "./../../App";
-import Fab from "../Fab";
-import Header from "../Header";
-import Page from "../Page";
+import Fab                    from "../Fab";
+import Header                 from "../Header";
+import Page                   from "../Page";
 
 interface State {
     userMenuAnchorEl?: boolean;

@@ -1,10 +1,5 @@
 import React, { Fragment } from "react";
 import {
-    Query,
-    Mutation
-} from "react-apollo";
-import styled from "styled-components";
-import {
     Avatar,
     Button,
     Dialog,
@@ -14,15 +9,17 @@ import {
     DialogActions,
     LinearProgress
 } from "@material-ui/core";
+import gql                 from "graphql-tag";
+import { Query, Mutation } from "react-apollo";
+import styled              from "styled-components";
+import createSignedUrl        from "../../api/createSignedUrl";
+import fileUploadToS3         from "../../api/fileUploadToS3";
 import { PageComponentProps } from "../../App";
-import GraphQLProgress from "../GraphQLProgress";
-import Header from "../Header";
-import ImageInput from "../ImageInput";
-import NotFound from "../NotFound";
-import Page from "../Page";
-import gql from "graphql-tag";
-import createSignedUrl from "../../api/createSignedUrl";
-import fileUploadToS3  from "../../api/fileUploadToS3";
+import GraphQLProgress        from "../GraphQLProgress";
+import Header                 from "../Header";
+import ImageInput             from "../ImageInput";
+import NotFound               from "../NotFound";
+import Page                   from "../Page";
 
 type Item = "displayName" | "email" | "career" | "message" | "avatarUri";
 
@@ -61,9 +58,9 @@ const MutationUpdateUser = gql(`
 export default class extends React.Component<PageComponentProps<{}>, State> {
 
     displayNameInput?: any;
-    emailInput?: any;
-    careerInput?: any;
-    messageInput?: any;
+    emailInput?      : any;
+    careerInput?     : any;
+    messageInput?    : any;
 
     componentWillMount() {
         this.setState({
@@ -109,7 +106,6 @@ export default class extends React.Component<PageComponentProps<{}>, State> {
     closeEditableAvatarDialog = () => this.setState({ editableAvatarDialogIsVisible: false });
 
     render() {
-        console.log(this.props);
         const {
             auth,
             history,

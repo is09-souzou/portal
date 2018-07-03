@@ -8,8 +8,8 @@ import {
     Slide,
     TextField
 } from "@material-ui/core";
-import styled from "styled-components";
 import { SlideProps } from "@material-ui/core/Slide";
+import styled         from "styled-components";
 import { ErrorNotification } from "./wrapper/NotificationListener";
 
 interface Props {

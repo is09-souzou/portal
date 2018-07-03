@@ -1,11 +1,11 @@
-import React from "react";
-import styled from "styled-components";
+import React          from "react";
 import { Typography } from "@material-ui/core";
+import styled         from "styled-components";
 
 const messages = ["(＝△＝)", "(´・ω・`)", "(＿´Д｀)", "(= ‐ω‐ =)", "(*ノω・*)"];
 
-export default () => (
-    <Host>
+export default (props: React.HTMLAttributes<HTMLDivElement>) => (
+    <Host {...props}>
         <Typography
             variant="display4"
         >

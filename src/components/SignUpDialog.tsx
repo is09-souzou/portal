@@ -1,5 +1,4 @@
 import React from "react";
-import styled from "styled-components";
 import {
     Slide,
     Dialog,
@@ -10,9 +9,10 @@ import {
     Button,
 } from "@material-ui/core";
 import { DialogProps } from "@material-ui/core/Dialog";
-import { SingUp } from "./wrapper/Auth";
+import { SlideProps }  from "@material-ui/core/Slide";
+import styled          from "styled-components";
+import { SingUp }               from "./wrapper/Auth";
 import { NotificationListener } from "./wrapper/NotificationListener";
-import { SlideProps } from "@material-ui/core/Slide";
 
 const Transition = (props: SlideProps) =>  <Slide direction="up" {...props} />;
 

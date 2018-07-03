@@ -1,11 +1,11 @@
 import React, { Fragment } from "react";
-import { Query } from "react-apollo";
-import { PageComponentProps } from "./../../App";
-import gql from "graphql-tag";
-import GraphQLProgress from "./../GraphQLProgress";
-import Header from "../Header";
-import NotFound from "../NotFound";
-import Page from "../Page";
+import gql                 from "graphql-tag";
+import { Query }           from "react-apollo";
+import { PageComponentProps } from "../../App";
+import GraphQLProgress        from "../GraphQLProgress";
+import Header                 from "../Header";
+import NotFound               from "../NotFound";
+import Page                   from "../Page";
 
 const QueryGetUser = gql(`
     query($id: ID!) {

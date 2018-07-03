@@ -1,18 +1,18 @@
 import React from "react";
-import styled from "styled-components";
 import {
     Button,
     Chip,
-    TextField,
+    TextField
 } from "@material-ui/core";
-import ImageInput from "../ImageInput";
+import gql          from "graphql-tag";
 import { Mutation } from "react-apollo";
+import styled       from "styled-components";
+import createSignedUrl        from "../../api/createSignedUrl";
+import fileUploadToS3         from "../../api/fileUploadToS3";
 import { PageComponentProps } from "../../App";
-import createSignedUrl from "../../api/createSignedUrl";
-import fileUploadToS3  from "../../api/fileUploadToS3";
-import Header from "../Header";
-import Page from "../Page";
-import gql from "graphql-tag";
+import Header                 from "../Header";
+import ImageInput             from "../ImageInput";
+import Page                   from "../Page";
 
 interface Chip {
     key  : string;
@@ -63,7 +63,7 @@ export default class extends React.Component<PageComponentProps<void>, State> {
 
     componentWillMount() {
         this.setState({
-            chipsData: [],
+            chipsData: []
         });
     }
 

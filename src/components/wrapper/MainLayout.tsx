@@ -1,8 +1,8 @@
-import React from "react";
-import styled from "styled-components";
-import { Drawer } from "@material-ui/core";
-import Navigator from "./../Navigator";
+import React                   from "react";
+import { Drawer }              from "@material-ui/core";
 import { RouteComponentProps } from "react-router-dom";
+import styled                  from "styled-components";
+import Navigator               from "./../Navigator";
 
 interface State {
     drawerOpend: boolean;

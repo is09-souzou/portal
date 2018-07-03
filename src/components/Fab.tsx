@@ -1,8 +1,8 @@
-import React from "react";
-import Button from "@material-ui/core/Button";
+import React, { Ref }  from "react";
+import Button, { ButtonProps } from "@material-ui/core/Button";
 import styled from "styled-components";
 
-const Fab = styled(Button)`
+const Fab = styled<ButtonProps>(Button)`
     && {
         position: fixed;
         right: 0;
@@ -11,4 +11,6 @@ const Fab = styled(Button)`
     }
 `;
 
-export default (props: any) => <Fab color="primary" variant="fab" {...props}/>;
+// TODO https://github.com/styled-components/styled-components/issues/1695
+export default (props: ButtonProps & { innerRef?: (instance: any) => void; }) =>
+    <Fab color="primary" variant="fab" {...props}/>;

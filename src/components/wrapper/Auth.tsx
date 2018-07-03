@@ -1,5 +1,10 @@
 import React, { ReactNode } from "react";
-import { CognitoUserPool, CognitoUser, AuthenticationDetails, CognitoUserAttribute } from "amazon-cognito-identity-js";
+import {
+    AuthenticationDetails,
+    CognitoUser,
+    CognitoUserAttribute,
+    CognitoUserPool
+} from "amazon-cognito-identity-js";
 import config from "./../../config";
 
 interface Token {

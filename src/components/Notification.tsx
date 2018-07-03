@@ -6,12 +6,12 @@ import {
     IconButton,
     withTheme
 } from "@material-ui/core";
-import { Close as CloseIcon } from "@material-ui/icons";
+import { Close as CloseIcon }               from "@material-ui/icons";
 import { SnackbarClassKey, SnackBarOrigin } from "@material-ui/core/Snackbar";
-import { SnackbarContentProps } from "@material-ui/core/SnackbarContent";
-import { TransitionHandlerProps } from "@material-ui/core/transitions/transition";
-import { TransitionProps } from "react-transition-group/Transition";
-import styled from "styled-components";
+import { SnackbarContentProps }             from "@material-ui/core/SnackbarContent";
+import { TransitionHandlerProps }           from "@material-ui/core/transitions/transition";
+import { TransitionProps }                  from "react-transition-group/Transition";
+import styled                               from "styled-components";
 
 interface Props extends StandardProps<
   React.HTMLAttributes<HTMLDivElement> & Partial<TransitionHandlerProps>,

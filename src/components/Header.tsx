@@ -1,33 +1,33 @@
 import React, { Fragment } from "react";
-import { Query } from "react-apollo";
-import styled from "styled-components";
-import * as H from "history";
+import {
+    AppBar,
+    Button,
+    IconButton,
+    InputAdornment,
+    Input,
+    Popover,
+    Toolbar,
+    Typography
+} from "@material-ui/core";
 import {
     AccountCircle as AccountCircleIcon,
     Menu as MenuIcon,
     Search as SearchIcon,
 } from "@material-ui/icons";
-import {
-    AppBar,
-    Button,
-    Toolbar,
-    Typography,
-    IconButton,
-    InputAdornment,
-    Input,
-    Popover,
-} from "@material-ui/core";
-
-import { AuthProps } from "./wrapper/Auth";
-import { DrawerContext } from "./wrapper/MainLayout";
-import SignInDialog from "./SignInDialog";
-import SignUpDialog from "./SignUpDialog";
-import Link         from "./Link";
-import GraphQLProgress from "./GraphQLProgress";
-import toObjectFromURIQuery from "../api/toObjectFromURIQuery";
-import { NotificationListener } from "./wrapper/NotificationListener";
-import gql from "graphql-tag";
+import gql          from "graphql-tag";
+import styled       from "styled-components";
+import { Query }    from "react-apollo";
 import { Redirect } from "react-router";
+import * as H       from "history";
+
+import toObjectFromURIQuery     from "../api/toObjectFromURIQuery";
+import { AuthProps }            from "./wrapper/Auth";
+import { DrawerContext }        from "./wrapper/MainLayout";
+import { NotificationListener } from "./wrapper/NotificationListener";
+import Link                     from "./Link";
+import SignInDialog             from "./SignInDialog";
+import SignUpDialog             from "./SignUpDialog";
+import GraphQLProgress          from "./GraphQLProgress";
 
 interface Props extends AuthProps {
     history: H.History;
@@ -61,12 +61,14 @@ export default class extends React.Component<Props, State> {
     handleMenu = (event: React.MouseEvent<HTMLElement>): void =>
         this.setState({ userMenuAnchorEl: event.currentTarget })
 
+    // TODO
     handleSearch = (e: React.KeyboardEvent<HTMLInputElement>) => {
-        const val = (e.target as any).value;
+        const value = (e.target as any).value;
         if (e.keyCode && e.keyCode === 13) {
-            console.log("if:" + val);
+            console.log("if:" + value);
         }
     }
+
     menuClose = () => this.setState({ userMenuAnchorEl: undefined });
 
     signInDialogOpen = () => this.props.history.push("?sign-in=true");

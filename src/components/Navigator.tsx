@@ -1,5 +1,4 @@
 import React from "react";
-import styled from "styled-components";
 import {
     Collapse,
     Divider,
@@ -11,15 +10,14 @@ import {
     Typography,
     withTheme,
 } from "@material-ui/core";
-
 import {
-    ColorLens as ColorLensIcon,
-    Star as StarIcon,
+    ColorLens   as ColorLensIcon,
+    ExpandLess  as ExpandLessIcon,
+    ExpandMore  as ExpandMoreIcon,
     NewReleases as NewReleasesIcon,
-    ExpandMore as ExpandMoreIcon,
-    ExpandLess as ExpandLessIcon
+    Star        as StarIcon
 } from "@material-ui/icons";
-
+import styled from "styled-components";
 import Link from "./Link";
 
 interface Props {
