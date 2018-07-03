@@ -120,7 +120,8 @@ export default class extends React.Component<PageComponentProps<void>, State> {
                                                     description,
                                                     userId: auth.token!.payload.sub,
                                                     tags: this.state.chipsData.map(x => x.label),
-                                                    imageUri: ""
+                                                    // tslint:disable-next-line:max-line-length
+                                                    imageUri: "https://s3-ap-northeast-1.amazonaws.com/is09-portal-image/system/broken-image.png"
                                                 }
                                             },
                                             optimisticResponse: {
