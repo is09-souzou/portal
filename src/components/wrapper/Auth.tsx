@@ -3,7 +3,7 @@ import {
     AuthenticationDetails,
     CognitoUser,
     CognitoUserAttribute,
-    CognitoUserPool
+    CognitoUserPool,
 } from "amazon-cognito-identity-js";
 import config from "./../../config";
 
@@ -17,6 +17,7 @@ interface Token {
 export type SingIn = (email: string, password: string) => Promise<Token>;
 export type SingUp = (email: string, password: string, attribute?: {[key: string]: string}) => Promise<string>;
 export type SingOut = () => Promise<void>;
+export type UpdateEmail = (email: string) => Promise<string>;
 export type UpdatePassword = (password: string, newPassword: string) => Promise<void>;
 
 export type AuthProps = {
@@ -24,6 +25,7 @@ export type AuthProps = {
         signIn: SingIn;
         signUp: SingUp;
         signOut: SingOut;
+        updateEmail: UpdateEmail;
         updatePassword: UpdatePassword;
         token: Token | null;
         cognitoUserPool?: CognitoUserPool | null;
@@ -130,6 +132,24 @@ export default class extends React.Component<Props, State> {
                             }
                         });
                     }
+                }),
+                updateEmail: (email) => new Promise((resolve, reject) => {
+                    const attributeList = [];
+                    const attribute = {
+                        Name: "email",
+                        Value: email
+                    };
+                    attributeList.push(attribute);
+                    this.state.cognitoUser!.updateAttributes(
+                        attributeList,
+                        (err, result) => {
+                            if (err) {
+                                reject(err);
+                                return;
+                            }
+                            resolve(result);
+                        }
+                    );
                 }),
                 updatePassword: (password, newPassword) => new Promise((resolve, reject) =>
                     this.state.cognitoUser!.changePassword(

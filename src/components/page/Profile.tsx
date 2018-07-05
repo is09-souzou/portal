@@ -2,26 +2,27 @@ import React, { Fragment } from "react";
 import {
     Avatar,
     Button,
+    TextField,
+    Typography,
     Dialog,
     DialogTitle,
-    TextField,
     DialogContent,
     DialogActions,
-    LinearProgress
+    LinearProgress,
 } from "@material-ui/core";
 import gql                 from "graphql-tag";
 import { Query, Mutation } from "react-apollo";
 import styled              from "styled-components";
-import createSignedUrl        from "../../api/createSignedUrl";
-import fileUploadToS3         from "../../api/fileUploadToS3";
-import { PageComponentProps } from "../../App";
-import GraphQLProgress        from "../GraphQLProgress";
-import Header                 from "../Header";
-import ImageInput             from "../ImageInput";
-import NotFound               from "../NotFound";
-import Page                   from "../Page";
+import createSignedUrl          from "../../api/createSignedUrl";
+import fileUploadToS3           from "../../api/fileUploadToS3";
+import { PageComponentProps }   from "../../App";
+import GraphQLProgress          from "../GraphQLProgress";
+import Header                   from "../Header";
+import ImageInput               from "../ImageInput";
+import NotFound                 from "../NotFound";
+import Page                     from "../Page";
 
-type Item = "displayName" | "email" | "career" | "message" | "avatarUri";
+type Item = "displayName" | "email" | "career" | "message" | "avatarUri" | "settingEmail";
 
 interface State {
     whileEditingItem: Item[];
@@ -61,6 +62,7 @@ export default class extends React.Component<PageComponentProps<{}>, State> {
     emailInput?      : any;
     careerInput?     : any;
     messageInput?    : any;
+    settingEmailInput?: any;
 
     componentWillMount() {
         this.setState({
@@ -210,7 +212,6 @@ export default class extends React.Component<PageComponentProps<{}>, State> {
                                                     onChange={this.addWhileEditingItem("email")}
                                                     defaultValue={currentUser.email}
                                                     fullWidth
-                                                    required
                                                     // tslint:disable-next-line:jsx-no-lambda
                                                     inputRef={x => this.emailInput = x}
                                                 />
@@ -362,6 +363,51 @@ export default class extends React.Component<PageComponentProps<{}>, State> {
                         );
                     }}
                 </Query>
+                <StyledSetting>
+                    <div>
+                        <form
+                            // tslint:disable-next-line:jsx-no-lambda
+                            onSubmit={async e => {
+                                e.preventDefault();
+
+                                const email = (e.target as any).elements["setting-email"].value;
+
+                                try {
+                                    await this.props.auth.updateEmail(email);
+                                    notificationListener.notification("info", "Send Mail");
+                                } catch (e) {
+                                    notificationListener.errorNotification(e);
+                                    return;
+                                }
+                            }}
+                        >
+                            <Typography gutterBottom variant="headline">
+                                Setting
+                            </Typography>
+                            <TextField
+                                id="setting-email"
+                                label="Mail Address"
+                                margin="normal"
+                                InputProps={{
+                                    endAdornment: (
+                                        this.state.whileEditingItem.includes("settingEmail")
+                                        &&
+                                        <Button
+                                            type="submit"
+                                        >
+                                            Update
+                                        </Button>
+                                    )
+                                }}
+                                type="email"
+                                onChange={this.addWhileEditingItem("settingEmail")}
+                                fullWidth
+                                // tslint:disable-next-line:jsx-no-lambda
+                                inputRef={x => this.settingEmailInput = x}
+                            />
+                        </form>
+                    </div>
+                </StyledSetting>
             </Page>
         );
     }
@@ -391,6 +437,14 @@ const Content = styled.form`
         width: unset;
         margin: 0 4rem;
     }
+`;
+
+const StyledSetting = styled.div`
+    max-width: 40rem;
+    padding-top: 4rem;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
 `;
 
 const UserAvatar = styled(Avatar)`
